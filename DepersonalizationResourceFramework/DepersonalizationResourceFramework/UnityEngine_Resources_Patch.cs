@@ -65,15 +65,12 @@ namespace DepersonalizationResourceFramework
         }
         static Texture2D LoadTexture(byte[] bytes)
         {
-            if(bytes== null)
-            {
-                throw new Exception("加载文件炸了");
-            }
-            return LoadTexture(0, 0, bytes, TextureFormat.RGBA32);
+            return LoadTexture(0, 0, bytes, TextureFormat.RGBA64);
         }
         static Texture2D LoadTexture(int w, int h, byte[] bytes, TextureFormat format)
         {
             Texture2D texture = new Texture2D(w, h, format, false);
+            texture.filterMode = FilterMode.Point;
             texture.LoadImage(bytes);
             return texture;
         }
@@ -89,7 +86,7 @@ namespace DepersonalizationResourceFramework
             Graphics.Blit(source, renderTex);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
-            Texture2D readableText = new Texture2D(source.width, source.height,source.format,false);
+            Texture2D readableText = new Texture2D(source.width, source.height, source.format, false);
             readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
             readableText.Apply();
             RenderTexture.active = previous;
@@ -108,7 +105,7 @@ namespace DepersonalizationResourceFramework
             Graphics.Blit(source.texture, renderTex);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
-            Texture2D readableText = new Texture2D((int)source.textureRect.width, (int)source.textureRect.height,source.texture.format,false);
+            Texture2D readableText = new Texture2D((int)source.textureRect.width, (int)source.textureRect.height, source.texture.format, false);
             readableText.ReadPixels(new Rect(source.textureRect.x, source.texture.height - source.textureRect.y - source.textureRect.height, source.textureRect.width, source.textureRect.height), 0, 0);
             readableText.Apply();
             RenderTexture.active = previous;
@@ -127,7 +124,7 @@ namespace DepersonalizationResourceFramework
                 Plugin.Log.LogError(string.Format("Sprite资源加载错误:{0}", path));
                 return sprite;
             }*/
-            if (Plugin.s_Instance.is_output && sprite!=null&&sprite.texture!=null)
+            if (Plugin.s_Instance.is_output && sprite != null && sprite.texture != null)
             {
                 Texture2D texture = DuplicateTexture(sprite);
                 byte[] bytes = texture.EncodeToPNG();
@@ -148,7 +145,7 @@ namespace DepersonalizationResourceFramework
         static Texture2D Texture2D_Replace(string path, Texture2D texture)
         {
             //输出文件
-            if (Plugin.s_Instance.is_output && texture!=null)
+            if (Plugin.s_Instance.is_output && texture != null)
             {
                 Texture2D out_texture = DuplicateTexture(texture);
                 byte[] bytes = out_texture.EncodeToPNG();
