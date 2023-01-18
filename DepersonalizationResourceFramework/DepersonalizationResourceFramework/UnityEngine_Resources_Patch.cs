@@ -86,7 +86,7 @@ namespace DepersonalizationResourceFramework
             Graphics.Blit(source, renderTex);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
-            Texture2D readableText = new Texture2D(source.width, source.height, source.format, false);
+            Texture2D readableText = new Texture2D(source.width, source.height, TextureFormat.RGBA64, false);
             readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
             readableText.Apply();
             RenderTexture.active = previous;
@@ -105,7 +105,7 @@ namespace DepersonalizationResourceFramework
             Graphics.Blit(source.texture, renderTex);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
-            Texture2D readableText = new Texture2D((int)source.textureRect.width, (int)source.textureRect.height, source.texture.format, false);
+            Texture2D readableText = new Texture2D((int)source.textureRect.width, (int)source.textureRect.height, TextureFormat.RGBA64, false);
             readableText.ReadPixels(new Rect(source.textureRect.x, source.texture.height - source.textureRect.y - source.textureRect.height, source.textureRect.width, source.textureRect.height), 0, 0);
             readableText.Apply();
             RenderTexture.active = previous;
