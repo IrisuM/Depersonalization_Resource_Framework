@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DepersonalizationResourceFramework", "DepersonalizationResourceFramework\DepersonalizationResourceFramework.csproj", "{B28E0416-F55B-4093-AEC5-832128E2F0E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B28E0416-F55B-4093-AEC5-832128E2F0E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B28E0416-F55B-4093-AEC5-832128E2F0E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B28E0416-F55B-4093-AEC5-832128E2F0E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B28E0416-F55B-4093-AEC5-832128E2F0E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF2F5B93-08B1-4416-B605-0E77ADD6EC70}
+	EndGlobalSection
+EndGlobal
