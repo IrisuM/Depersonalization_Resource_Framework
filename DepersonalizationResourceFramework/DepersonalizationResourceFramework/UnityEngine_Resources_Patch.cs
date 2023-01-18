@@ -31,38 +31,25 @@ namespace DepersonalizationResourceFramework
         [HarmonyPatch(typeof(Resources), "Load", new Type[] { typeof(string), typeof(Type) })]
         static void UnityEngine_Resources_Load_Postfix(ref Object __result, string path, Type systemTypeInstance)
         {
-            if (__result == null)
+            //官方有时候资源名写错之类的，所以可能造成加载失败，直接pass掉
+            /*if (__result == null)
             {
                 Plugin.Log.LogError(string.Format("资源加载错误:{0}", path));
                 return;
-            }
+            }*/
             try
             {
+                //分类输出和加载资源
                 switch (systemTypeInstance.Name)
                 {
                     case ResourceName.SPRITE_NAME:
                         {
-                            if ((__result as Sprite) != null)
-                            {
-                                __result = Sprite_Replace(path, __result as Sprite);
-                            }
-                            else
-                            {
-                                Plugin.Log.LogError(string.Format("资源加载Sprite类型错误:{0}", path));
-                            }
+                            __result = Sprite_Replace(path, __result as Sprite);
                         }
                         break;
                     case ResourceName.TEXTURE2D_NAME:
                         {
-                            if ((__result as Texture2D) != null)
-                            {
-                                __result = Texture2D_Replace(path, __result as Texture2D);
-                            }
-                            else
-                            {
-                                Plugin.Log.LogError(string.Format("资源加载Texture2D类型错误:{0}", path));
-                            }
-                            //__result = Texture2D_Replace(path, __result as Texture2D);
+                            __result = Texture2D_Replace(path, __result as Texture2D);
                         }
                         break;
                     default:
@@ -75,6 +62,14 @@ namespace DepersonalizationResourceFramework
                 Plugin.Log.LogError(string.Format("资源加载错误:{0} {1}", path, e.Message));
             }
 
+        }
+        static Texture2D LoadTexture(byte[] bytes)
+        {
+            if(bytes== null)
+            {
+                throw new Exception("加载文件炸了");
+            }
+            return LoadTexture(0, 0, bytes, TextureFormat.RGBA32);
         }
         static Texture2D LoadTexture(int w, int h, byte[] bytes, TextureFormat format)
         {
@@ -127,12 +122,12 @@ namespace DepersonalizationResourceFramework
         }
         static Sprite Sprite_Replace(string path, Sprite sprite)
         {
-            if (sprite.texture == null)
+            /*if (sprite.texture == null)
             {
                 Plugin.Log.LogError(string.Format("Sprite资源加载错误:{0}", path));
                 return sprite;
-            }
-            if (Plugin.s_Instance.is_output)
+            }*/
+            if (Plugin.s_Instance.is_output && sprite!=null&&sprite.texture!=null)
             {
                 Texture2D texture = DuplicateTexture(sprite);
                 byte[] bytes = texture.EncodeToPNG();
@@ -144,15 +139,16 @@ namespace DepersonalizationResourceFramework
             if (Plugin.s_Instance.is_replace && ResourceHelper.CanReplacePNG(path, out replace_path))
             {
                 byte[] bytes = File.ReadAllBytes(replace_path);
-                Texture2D texture = LoadTexture(sprite.texture.width, sprite.texture.height, bytes,sprite.texture.format);
-                sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), sprite.pivot, sprite.pixelsPerUnit, 0, SpriteMeshType.Tight, sprite.border, false);
+                Texture2D texture = LoadTexture(bytes);
+                Rect rect = new Rect(0, 0, texture.width, texture.height);
+                sprite = Sprite.Create(texture, rect, rect.center);
             }
             return sprite;
         }
         static Texture2D Texture2D_Replace(string path, Texture2D texture)
         {
             //输出文件
-            if (Plugin.s_Instance.is_output)
+            if (Plugin.s_Instance.is_output && texture!=null)
             {
                 Texture2D out_texture = DuplicateTexture(texture);
                 byte[] bytes = out_texture.EncodeToPNG();
@@ -164,7 +160,7 @@ namespace DepersonalizationResourceFramework
             if (Plugin.s_Instance.is_replace && ResourceHelper.CanReplacePNG(path, out replace_path))
             {
                 byte[] bytes = File.ReadAllBytes(replace_path);
-                texture = LoadTexture(texture.width, texture.height, bytes,texture.format);
+                texture = LoadTexture(bytes);
             }
             return texture;
         }
