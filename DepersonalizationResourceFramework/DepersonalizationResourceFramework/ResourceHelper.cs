@@ -60,6 +60,10 @@ namespace DepersonalizationResourceFramework
                         result.Add(e.Name.GetHashCode().ToString(), new LOAD_CONFIG { name = e.Name, description = e.Des, path = e.SaveFolderPath + "/" + PluginPathConfig.FrameworkPath + "/" + PluginPathConfig.IntputPath, index = index });
                         index--;
                     }
+                    if(!e.LocalData.IsActive&&result.ContainsKey(e.Name.GetHashCode().ToString()))
+                    {
+                        result.Remove(e.Name.GetHashCode().ToString());
+                    }
                 }
             }
             //添加本地配置
