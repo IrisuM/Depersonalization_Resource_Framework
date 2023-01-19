@@ -18,7 +18,7 @@ namespace DepersonalizationResourceFramework
                 "\n" +
                 "是擅长各类恐怖游戏的可爱机械狐狐" +
                 "\n" +
-                "《人格解体》直播视频：https://www.bilibili.com/video/BV1SD4y177ne/?share_source=copy_web&vd_source=e242b81f6701dd9662b9bfedc6729eba" +
+                "《人格解体》直播视频：https://www.bilibili.com/video/BV1SD4y177ne" +
                 "\n\n\n";
             public const string CONFIG_SECTION = "资源替换框架";
             public const string CONFIG_IS_OUTPUT = "是否导出资源";
