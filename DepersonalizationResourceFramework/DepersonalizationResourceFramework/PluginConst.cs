@@ -32,6 +32,8 @@ namespace DepersonalizationResourceFramework
         {
             public const string SPRITE_NAME = "Sprite";
             public const string TEXTURE2D_NAME = "Texture2D";
+            public const string GAMEOBJECT_NAME = "GameObject";
+            public const string OBJECT_NAME = "Object";
         }
         
         public static class PluginPathConfig

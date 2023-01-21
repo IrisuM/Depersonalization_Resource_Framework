@@ -35,6 +35,9 @@
     <Reference Include="netstandard">
       <HintPath>..\..\lib\netstandard.dll</HintPath>
     </Reference>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>..\..\lib\Sirenix.Serialization.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime">
       <HintPath>..\..\lib\System.Runtime.dll</HintPath>
     </Reference>

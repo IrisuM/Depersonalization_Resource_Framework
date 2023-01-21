@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using ES3Types;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,17 @@ namespace DepersonalizationResourceFramework
         static void UIRoot_Initialize_Postfix()
         {
             ResourceHelper.ReloadPath();
+        }
+    }
+    internal class ES3_Load_Patch
+    {
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ES3), "Load", new Type[] { typeof(string), typeof(ES3Settings) })]
+        static object ES3_Load_Postfix(ref object __result, string key, ES3Settings settings)
+        {
+            Plugin.Log.LogMessage(string.Format("key:{0}", key));
+            return __result;
         }
     }
     internal class UnityEngine_Resources_Patch
@@ -50,6 +62,23 @@ namespace DepersonalizationResourceFramework
                     case ResourceName.TEXTURE2D_NAME:
                         {
                             __result = Texture2D_Replace(path, __result as Texture2D);
+                        }
+                        break;
+                    case ResourceName.OBJECT_NAME:
+                    case ResourceName.GAMEOBJECT_NAME:
+                        {
+                            bool is_replace = false;
+                            //定制化支持游戏部分模型
+                            if (path.StartsWith("Charator/Prefabs", StringComparison.OrdinalIgnoreCase))
+                            {
+                                __result = SpriteAnimation_Replace(path, __result as GameObject);
+                                is_replace = true;
+                            }
+
+                            if (!is_replace)
+                            {
+                                Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
+                            }
                         }
                         break;
                     default:
@@ -119,11 +148,6 @@ namespace DepersonalizationResourceFramework
         }
         static Sprite Sprite_Replace(string path, Sprite sprite)
         {
-            /*if (sprite.texture == null)
-            {
-                Plugin.Log.LogError(string.Format("Sprite资源加载错误:{0}", path));
-                return sprite;
-            }*/
             if (Plugin.s_Instance.is_output && sprite != null && sprite.texture != null)
             {
                 Texture2D texture = DuplicateTexture(sprite);
@@ -160,6 +184,32 @@ namespace DepersonalizationResourceFramework
                 texture = LoadTexture(bytes);
             }
             return texture;
+        }
+
+        //游戏定制化支持模型图片导出，方便替换
+        static GameObject SpriteAnimation_Replace(string path, GameObject model)
+        {
+            //输出文件
+            if (Plugin.s_Instance.is_output && model != null)
+            {
+                RoleModel role = model.GetComponent<RoleModel>();
+
+                foreach (SpriteAnimationData spriteAnimationData in role.SpriteAnim.AnimationList)
+                {
+                    string animation_name = spriteAnimationData.Key;
+                    foreach (SpriteConfigData spriteConfigData in spriteAnimationData.SpriteDatas)
+                    {
+                        Texture2D texture = Texture2D_Replace(path +"/"+ animation_name + "/" + spriteConfigData.Sprite.name, spriteConfigData.Sprite.texture);
+                        if (texture != spriteConfigData.Sprite.texture)
+                        {
+                            spriteConfigData.Sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0),64);
+                        }
+                    }
+                }
+
+            }
+
+            return model;
         }
     }
 }
