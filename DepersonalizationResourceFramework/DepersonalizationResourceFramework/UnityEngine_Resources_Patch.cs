@@ -16,87 +16,13 @@ using ResourceName = DepersonalizationResourceFramework.PluginConst.ResourceType
 
 namespace DepersonalizationResourceFramework
 {
-    internal class UIRoot_Initialize_Patch
+    internal static class ReplaceTool
     {
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIRoot), "Initialize")]
-        static void UIRoot_Initialize_Postfix()
-        {
-            ResourceHelper.ReloadPath();
-        }
-    }
-    internal class ES3_Load_Patch
-    {
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(ES3), "Load", new Type[] { typeof(string), typeof(ES3Settings) })]
-        static object ES3_Load_Postfix(ref object __result, string key, ES3Settings settings)
-        {
-            Plugin.Log.LogMessage(string.Format("key:{0}", key));
-            return __result;
-        }
-    }
-    internal class UnityEngine_Resources_Patch
-    {
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Resources), "Load", new Type[] { typeof(string), typeof(Type) })]
-        static void UnityEngine_Resources_Load_Postfix(ref Object __result, string path, Type systemTypeInstance)
-        {
-            //官方有时候资源名写错之类的，所以可能造成加载失败，直接pass掉
-            /*if (__result == null)
-            {
-                Plugin.Log.LogError(string.Format("资源加载错误:{0}", path));
-                return;
-            }*/
-            try
-            {
-                //分类输出和加载资源
-                switch (systemTypeInstance.Name)
-                {
-                    case ResourceName.SPRITE_NAME:
-                        {
-                            __result = Sprite_Replace(path, __result as Sprite);
-                        }
-                        break;
-                    case ResourceName.TEXTURE2D_NAME:
-                        {
-                            __result = Texture2D_Replace(path, __result as Texture2D);
-                        }
-                        break;
-                    case ResourceName.OBJECT_NAME:
-                    case ResourceName.GAMEOBJECT_NAME:
-                        {
-                            bool is_replace = false;
-                            //定制化支持游戏部分模型
-                            if (path.StartsWith("Charator/Prefabs", StringComparison.OrdinalIgnoreCase))
-                            {
-                                __result = SpriteAnimation_Replace(path, __result as GameObject);
-                                is_replace = true;
-                            }
-
-                            if (!is_replace)
-                            {
-                                Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
-                            }
-                        }
-                        break;
-                    default:
-                        Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.LogError(string.Format("资源加载错误:{0} {1}", path, e.Message));
-            }
-
-        }
-        static Texture2D LoadTexture(byte[] bytes)
+        public static Texture2D LoadTexture(byte[] bytes)
         {
             return LoadTexture(0, 0, bytes, TextureFormat.RGBA64);
         }
-        static Texture2D LoadTexture(int w, int h, byte[] bytes, TextureFormat format)
+        public static Texture2D LoadTexture(int w, int h, byte[] bytes, TextureFormat format)
         {
             Texture2D texture = new Texture2D(w, h, format, false);
             texture.filterMode = FilterMode.Point;
@@ -146,7 +72,7 @@ namespace DepersonalizationResourceFramework
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             System.IO.File.WriteAllBytes(path, bytes);
         }
-        static Sprite Sprite_Replace(string path, Sprite sprite)
+        public static Sprite Sprite_Replace(string path, Sprite sprite)
         {
             if (Plugin.s_Instance.is_output && sprite != null && sprite.texture != null)
             {
@@ -166,7 +92,7 @@ namespace DepersonalizationResourceFramework
             }
             return sprite;
         }
-        static Texture2D Texture2D_Replace(string path, Texture2D texture)
+        public static Texture2D Texture2D_Replace(string path, Texture2D texture)
         {
             //输出文件
             if (Plugin.s_Instance.is_output && texture != null)
@@ -187,22 +113,29 @@ namespace DepersonalizationResourceFramework
         }
 
         //游戏定制化支持模型图片导出，方便替换
-        static GameObject SpriteAnimation_Replace(string path, GameObject model)
+        public static GameObject SpriteAnimation_Replace(string path, GameObject model)
         {
+            if(model== null)
+            {
+                return model;
+            }
             //输出文件
             if (Plugin.s_Instance.is_output && model != null)
             {
                 RoleModel role = model.GetComponent<RoleModel>();
-
+                foreach(HeadIconData headIconData in role.HeadIcons)
+                {
+                    headIconData.Icon = Sprite_Replace(path + "/" + headIconData.Icon.name, headIconData.Icon);
+                }
                 foreach (SpriteAnimationData spriteAnimationData in role.SpriteAnim.AnimationList)
                 {
                     string animation_name = spriteAnimationData.Key;
                     foreach (SpriteConfigData spriteConfigData in spriteAnimationData.SpriteDatas)
                     {
-                        Texture2D texture = Texture2D_Replace(path +"/"+ animation_name + "/" + spriteConfigData.Sprite.name, spriteConfigData.Sprite.texture);
+                        Texture2D texture = Texture2D_Replace(path + "/" + model.gameObject.name.Replace("(Clone)", "") + "/" + animation_name + "/" + spriteConfigData.Sprite.name, spriteConfigData.Sprite.texture);
                         if (texture != spriteConfigData.Sprite.texture)
                         {
-                            spriteConfigData.Sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0),64);
+                            spriteConfigData.Sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0), 64);
                         }
                     }
                 }
@@ -210,6 +143,93 @@ namespace DepersonalizationResourceFramework
             }
 
             return model;
+        }
+    }
+    internal class UIRoot_Initialize_Patch
+    {
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIRoot), "Initialize")]
+        static void UIRoot_Initialize_Postfix()
+        {
+            ResourceHelper.ReloadPath();
+        }
+    }
+    internal class ES3_Load_Patch
+    {
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ES3), "Load", new Type[] { typeof(string), typeof(ES3Settings) })]
+        static object ES3_Load_Postfix(ref object __result, string key, ES3Settings settings)
+        {
+            Plugin.Log.LogMessage(string.Format("key:{0}", key));
+            return __result;
+        }
+    }
+    internal class RoleModel_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(RoleModel), "Awake")]
+        static void RoleModel_Awake_Postfix(ref RoleModel __instance)
+        {
+            ReplaceTool.SpriteAnimation_Replace("Charator/Prefabs", __instance.gameObject);
+        }
+    }
+    internal class UnityEngine_Resources_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Resources), "Load", new Type[] { typeof(string), typeof(Type) })]
+        static void UnityEngine_Resources_Load_Postfix(ref Object __result, string path, Type systemTypeInstance)
+        {
+            //官方有时候资源名写错之类的，所以可能造成加载失败，直接pass掉
+            /*if (__result == null)
+            {
+                Plugin.Log.LogError(string.Format("资源加载错误:{0}", path));
+                return;
+            }*/
+            try
+            {
+                //分类输出和加载资源
+                switch (systemTypeInstance.Name)
+                {
+                    case ResourceName.SPRITE_NAME:
+                        {
+                            __result = ReplaceTool.Sprite_Replace(path, __result as Sprite);
+                        }
+                        break;
+                    case ResourceName.TEXTURE2D_NAME:
+                        {
+                            __result = ReplaceTool.Texture2D_Replace(path, __result as Texture2D);
+                        }
+                        break;
+                    case ResourceName.OBJECT_NAME:
+                    case ResourceName.GAMEOBJECT_NAME:
+                        {
+                            bool is_replace = false;
+                            //定制化启用，要定制化就定制到底咯
+                            //定制化支持游戏部分模型
+                            /*if (path.StartsWith("Charator/Prefabs", StringComparison.OrdinalIgnoreCase))
+                            {
+                                __result = SpriteAnimation_Replace(path, __result as GameObject);
+                                is_replace = true;
+                            }*/
+
+                            if (!is_replace)
+                            {
+                                Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
+                            }
+                        }
+                        break;
+                    default:
+                        Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError(string.Format("资源加载错误:{0} {1}", path, e.Message));
+            }
+
         }
     }
 }

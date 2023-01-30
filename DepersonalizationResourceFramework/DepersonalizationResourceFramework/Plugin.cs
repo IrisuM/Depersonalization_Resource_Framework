@@ -2,17 +2,11 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using LitJson;
-using JetBrains.Annotations;
-using System.Collections.Generic;
-using PluginConfig = DepersonalizationResourceFramework.PluginConst.PluginConfig;
-using PluginPathConfig = DepersonalizationResourceFramework.PluginConst.PluginPathConfig;
-using System.IO;
-using System.Collections;
-using static DepersonalizationResourceFramework.ResourceHelper;
-using System.Text.RegularExpressions;
 using System;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
+using PluginConfig = DepersonalizationResourceFramework.PluginConst.PluginConfig;
 
 namespace DepersonalizationResourceFramework
 {
@@ -40,6 +34,7 @@ namespace DepersonalizationResourceFramework
             Harmony harmony = new Harmony(PluginConfig.PLUGIN_GUID);
             harmony.PatchAll(typeof(UnityEngine_Resources_Patch));
             harmony.PatchAll(typeof(UIRoot_Initialize_Patch));
+            harmony.PatchAll(typeof(RoleModel_Patch));
         }
     }
 }
