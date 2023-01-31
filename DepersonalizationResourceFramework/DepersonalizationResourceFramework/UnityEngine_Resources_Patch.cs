@@ -115,16 +115,13 @@ namespace DepersonalizationResourceFramework
         //游戏定制化支持模型图片导出，方便替换
         public static GameObject SpriteAnimation_Replace(string path, GameObject model)
         {
-            if(model== null)
-            {
-                return model;
-            }
             //输出文件
             if (Plugin.s_Instance.is_output && model != null)
             {
                 RoleModel role = model.GetComponent<RoleModel>();
-                foreach(HeadIconData headIconData in role.HeadIcons)
+                foreach (HeadIconData headIconData in role.HeadIcons)
                 {
+                    if (headIconData == null) continue;
                     headIconData.Icon = Sprite_Replace(path + "/" + headIconData.Icon.name, headIconData.Icon);
                 }
                 foreach (SpriteAnimationData spriteAnimationData in role.SpriteAnim.AnimationList)
@@ -132,10 +129,21 @@ namespace DepersonalizationResourceFramework
                     string animation_name = spriteAnimationData.Key;
                     foreach (SpriteConfigData spriteConfigData in spriteAnimationData.SpriteDatas)
                     {
+                        if (spriteConfigData == null) continue;
                         Texture2D texture = Texture2D_Replace(path + "/" + model.gameObject.name.Replace("(Clone)", "") + "/" + animation_name + "/" + spriteConfigData.Sprite.name, spriteConfigData.Sprite.texture);
                         if (texture != spriteConfigData.Sprite.texture)
                         {
                             spriteConfigData.Sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0), 64);
+                        }
+                    }
+                    for (int i = 0; i < spriteAnimationData.Sprites.Count; i++)
+                    {
+                        Sprite sprite = spriteAnimationData.Sprites[i];
+                        if (sprite == null) continue;
+                        Texture2D texture = Texture2D_Replace(path + "/" + model.gameObject.name.Replace("(Clone)", "") + "/" + animation_name + "/" + sprite.name, sprite.texture);
+                        if (texture != sprite.texture)
+                        {
+                            spriteAnimationData.Sprites[i] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0), 64);
                         }
                     }
                 }
