@@ -153,12 +153,12 @@ namespace DepersonalizationResourceFramework
             return model;
         }
     }
-    internal class UIRoot_Initialize_Patch
+    internal class WorkshopHelper_EndUgcLoad_Patch
     {
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIRoot), "Initialize")]
-        static void UIRoot_Initialize_Postfix()
+        [HarmonyPatch(typeof(WorkshopHelper), "EndUgcLoad")]
+        static void WorkshopHelper_EndUgcLoad_Postfix()
         {
             ResourceHelper.ReloadPath();
         }
@@ -224,12 +224,12 @@ namespace DepersonalizationResourceFramework
 
                             if (!is_replace)
                             {
-                                Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
+                                //Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
                             }
                         }
                         break;
                     default:
-                        Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
+                        //Plugin.Log.LogMessage(string.Format("path:{0} type:{1}", path, systemTypeInstance.FullName));
                         break;
                 }
             }

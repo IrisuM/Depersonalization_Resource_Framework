@@ -33,7 +33,7 @@ namespace DepersonalizationResourceFramework
 
             Harmony harmony = new Harmony(PluginConfig.PLUGIN_GUID);
             harmony.PatchAll(typeof(UnityEngine_Resources_Patch));
-            harmony.PatchAll(typeof(UIRoot_Initialize_Patch));
+            harmony.PatchAll(typeof(WorkshopHelper_EndUgcLoad_Patch));
 
             
             if(AccessTools.Method(typeof(RoleModel), "Awake") != null)

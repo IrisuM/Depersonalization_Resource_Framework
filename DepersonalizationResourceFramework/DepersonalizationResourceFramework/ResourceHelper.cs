@@ -102,10 +102,10 @@ namespace DepersonalizationResourceFramework
             Dictionary<string, LOAD_CONFIG> configs = new Dictionary<string, LOAD_CONFIG>();
             foreach (string key in (data as IDictionary).Keys)
             {
-                if (data[key].Keys.Contains(PluginPathConfig.ConfigItemPath) &&
-                    data[key].Keys.Contains(PluginPathConfig.ConfigItemDescription) &&
-                    data[key].Keys.Contains(PluginPathConfig.ConfigItemName) &&
-                    data[key].Keys.Contains(PluginPathConfig.ConfigItemOrder))
+                if ((data[key] as IDictionary).Contains(PluginPathConfig.ConfigItemPath) &&
+                    (data[key] as IDictionary).Contains(PluginPathConfig.ConfigItemDescription) &&
+                    (data[key] as IDictionary).Contains(PluginPathConfig.ConfigItemName) &&
+                    (data[key] as IDictionary).Contains(PluginPathConfig.ConfigItemOrder))
                 {
                     configs[key] = new LOAD_CONFIG { name = (string)data[key][PluginPathConfig.ConfigItemName], description = (string)data[key][PluginPathConfig.ConfigItemDescription], path = (string)data[key][PluginPathConfig.ConfigItemPath], index = (int)data[key][PluginPathConfig.ConfigItemOrder] };
                 }

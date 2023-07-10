@@ -23,10 +23,21 @@ namespace DepersonalizationResourceFrameworkPatcher
                         {
                             if (type.Name == "RoleModel")
                             {
-                                MethodDefinition method = new MethodDefinition("Awake", MethodAttributes.Private, assembly.MainModule.ImportReference(typeof(void)));
-                                method.Body=new MethodBody(method);
-                                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-                                type.Methods.Add(method);
+                                bool has_awake= false;
+                                foreach(MethodDefinition e in type.Methods)
+                                {
+                                    if (e.Name == "Awake")
+                                    {
+                                        has_awake = true;
+                                    }
+                                }
+                                if (!has_awake)
+                                {
+                                    MethodDefinition method = new MethodDefinition("Awake", MethodAttributes.Private, assembly.MainModule.ImportReference(typeof(void)));
+                                    method.Body = new MethodBody(method);
+                                    method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+                                    type.Methods.Add(method);
+                                }
                             }
                         }
                     }
